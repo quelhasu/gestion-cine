@@ -1,0 +1,18 @@
+{
+	"film-collection": [{
+		"imdbid": "tt2488496",
+		"jours": ["Lundi", "Jeudi", "Vendredi"]
+	}, {
+		"imdbid": "tt0068646",
+		"jours": ["Lundi", "Mardi", "Mercredi", "Dimanche"]
+	}, {
+		"imdbid": "tt0468569",
+		"jours": ["Mercredi", "Samedi", "Dimanche"]
+	}, {
+		"imdbid": "tt0108052",
+		"jours": ["Mardi"]
+	}, {
+		"imdbid": "tt0167260",
+		"jours": ["Lundi", "Dimanche"]
+	}]
+}
