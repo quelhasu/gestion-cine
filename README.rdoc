@@ -1,0 +1,6 @@
+= gestion-cine
+
+Describe your project here
+
+:include:gestion-cine.rdoc
+
