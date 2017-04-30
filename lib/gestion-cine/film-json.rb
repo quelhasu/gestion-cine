@@ -9,7 +9,18 @@ module GestionCine
     def self.creer_film( ligne )
       imdbid = ligne["imdbid"]
       jours = ligne["jours"]
-      Film.new(imdbid, jours.join(SEPARATEUR_JOURS))
+      salles = lignes["salles"]
+      Film.new(imdbid,
+               jours.join,
+               salles)
+    end
+
+    # Methode pour renvoyer un objet Cours au format JSON
+    def self.transformer( film )
+      jours = film.jours
+      salles = film.salles
+      id = film.imdbid
+      a = {:imdbid => id, :jours => jours, :salles => salles}
     end
 
   end
