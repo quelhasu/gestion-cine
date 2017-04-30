@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+#-*- ruby -*-
 require 'gli'
 begin # XXX: Remove this begin/rescue before distributing your app
 require 'gestion-cine'
@@ -11,38 +12,48 @@ end
 
 include GLI::App
 
-program_desc 'Describe your application here'
+DEPOT_DEFAUT = '.films.json'
+GC = GestionCine
+
+program_desc 'Application pour la gestion d un cinema (banque de films)'
 
 version GestionCine::VERSION
 
 subcommand_option_handling :normal
 arguments :strict
 
-desc 'Describe some switch here'
-switch [:s,:switch]
+desc 'Depot de donnees a utiliser pour la banque de films'
+default_value DEPOT_DEFAUT
+flag :depot
+arg_name 'nom_de_fichier'
 
-desc 'Describe some flag here'
-default_value 'the default'
-arg_name 'The name of the argument'
-flag [:f,:flagname]
+####################################
+#           Commanades             #
+####################################
 
-desc 'Describe substitute here'
-arg_name 'Describe arguments to substitute here'
-command :substitute do |c|
-  c.desc 'Describe a switch to substitute'
-  c.switch :s
+desc 'Lister les films qui presents dans la base de donnees'
+command :lister do |lister|
+  lister.desc 'Option a utiliser pendant le listing (annee, top, duree)'
+  lister.flag :option, :arg_name = > 'option'
 
-  c.desc 'Describe a flag to substitute'
-  c.default_value 'default'
-  c.flag :f
-  c.action do |global_options,options,args|
+  lister.desc 'Format a utiliser pour l affichage du listing'
+  lister.flag :format, :arg_name = > 'le_format'
 
-    # Your command logic here
-     
-    # If you have any errors, just raise them
-    # raise "that command made no sense"
+  lister.desc 'Listing selon le mois indique'
+  lister.flag :mois, :arg_name = > 'mois'
 
-    puts "substitute command ran"
+  lister.action do |_global_options,options,args|
+    le_format = option[:format]
+    mois = options[:mois]
+    option = options[:option]
+
+    listing = GC::BanqueDeFilms
+      .les_films( mois )
+      .sort_films ( option )
+      .map { |e| e.to_s( le_format ) << "\n" }
+      .join
+
+     puts listing unless listing.empty?
   end
 end
 
@@ -58,29 +69,41 @@ desc 'Describe print here'
 arg_name 'Describe arguments to print here'
 command :print do |c|
   c.action do |global_options,options,args|
-    puts "print command ran"
+    puts "print comman d ran"
   end
 end
 
+###################################################
+# Pre/post hook des commandes et lancement du programme
+###################################################
+
 pre do |global,command,options,args|
-  # Pre logic here
-  # Return true to proceed; false to abort and not call the
-  # chosen command
-  # Use skips_pre before a command to skip this block
-  # on that command only
+  GestionCine::BanqueDeFilms.charger( global_options[:depot] )
   true
 end
 
 post do |global,command,options,args|
-  # Post logic here
-  # Use skips_post before a command to skip this
-  # block on that command only
+  GestionCine::BanqueDeFilms.sauver
+end
+
+###################################################
+# Methodes pour traitement des erreurs.
+###################################################
+
+def erreur( msg )
+  exit_now! "*** Erreur: #{msg}"
+end
+
+def erreur_nb_arguments( *args )
+  erreur "Nombre incorrect d'arguments: <<#{args.join(' ')}>>"
 end
 
 on_error do |exception|
-  # Error logic here
-  # return false to skip default error handling
-  true
+  STDERR.puts "*** Oops! Exception signalee dans bin/ga!!"
+  STDERR.puts "exception = #{exception.inspect}"
+  STDERR.puts exception.backtrace
+
+  false
 end
 
 exit run(ARGV)
