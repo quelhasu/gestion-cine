@@ -6,7 +6,7 @@ spec = Gem::Specification.new do |s|
   s.author = 'Ugo Quelhas'
   s.email = 'uquelhas@gmail.com'
   s.platform = Gem::Platform::RUBY
-  s.summary = 'Application pour la gestion d un cinema (banque de cours)'
+  s.summary = 'Application pour la gestion d un cinema (banque de films)'
   s.files = `git ls-files`.split("
 ")
   s.require_paths << 'lib'
@@ -20,5 +20,5 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency('minitest')
   s.add_development_dependency('json')
   s.add_development_dependency('omdbapi')
-  s.add_runtime_dependency('gli','2.16.0')
+  s.add_runtime_dependency('gli','2.14.0')
 end
