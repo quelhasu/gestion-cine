@@ -2,7 +2,7 @@
 #-*- ruby -*-
 require 'gli'
 begin # XXX: Remove this begin/rescue before distributing your app
-require 'gestion-cine'
+  require 'gestion-cine'
 rescue LoadError
   STDERR.puts "In development, you need to use `bundle exec bin/gestion-cine` to run your app"
   STDERR.puts "At install-time, RubyGems will make sure lib, etc. are in the load path"
@@ -12,8 +12,8 @@ end
 
 include GLI::App
 
-DEPOT_DEFAUT = '.films.json'
-GC = GestionCine
+DEPOT_DEFAUT = '.db.json'
+#GestionCine = GestionCine
 
 program_desc 'Application pour la gestion d un cinema (banque de films)'
 
@@ -34,28 +34,52 @@ arg_name 'nom_de_fichier'
 desc 'Lister les films qui presents dans la base de donnees'
 command :lister do |lister|
   lister.desc 'Option a utiliser pendant le listing (annee, top, duree)'
-  lister.flag :option, :arg_name = > 'option'
+  lister.flag :option, :arg_name => 'option'
 
   lister.desc 'Format a utiliser pour l affichage du listing'
-  lister.flag :format, :arg_name = > 'le_format'
+  lister.flag :format, :arg_name => 'le_format'
 
   lister.desc 'Listing selon le mois indique'
-  lister.flag :mois, :arg_name = > 'mois'
+  lister.flag :mois, :arg_name => 'mois'
 
   lister.action do |_global_options,options,args|
-    le_format = option[:format]
+    le_format = options[:format]
     mois = options[:mois]
     option = options[:option]
 
-    listing = GC::BanqueDeFilms
-      .les_films( mois )
-      .sort_films ( option )
-      .map { |e| e.to_s( le_format ) << "\n" }
-      .join
+    films = GestionCine::BanqueDeFilms.les_films( mois )
+    if option.nil?
+      films = films.sort
+    elsif option == "annee"
+      films = films.sort_by(&:annee).reverse!
+    elsif option == "top"
+      films = films.sort_by(&:note)
+    elsif option == "duree"
+      films = films.sort_by(&:duree)
+    end
 
-     puts listing unless listing.empty?
+    listing = films .map { |e| e.to_s( le_format ) << "\n" }
+                  .join
+
+    puts listing unless listing.empty?
   end
 end
+
+
+desc "Cree une nouvelle base de donnees pour gerer des cours (dans './#{DEPOT_DEFAUT}' si --depot n'est pas specifie)"
+skips_pre
+skips_post
+command :init do |init|
+  init.desc 'Indique de detruire le fichier si il existe deja'
+  init.switch :detruire
+
+  init.action do |global_options,options,args|
+    GestionCine::BanqueDeFilms.init( global_options[:depot], options[:detruire] )
+  end
+end
+
+
+
 
 desc 'Describe delete here'
 arg_name 'Describe arguments to delete here'
@@ -78,7 +102,7 @@ end
 ###################################################
 
 pre do |global,command,options,args|
-  GestionCine::BanqueDeFilms.charger( global_options[:depot] )
+  GestionCine::BanqueDeFilms.charger( global[:depot] )
   true
 end
 
@@ -99,7 +123,7 @@ def erreur_nb_arguments( *args )
 end
 
 on_error do |exception|
-  STDERR.puts "*** Oops! Exception signalee dans bin/ga!!"
+  STDERR.puts "*** Exception signalee dans bin/gestion-cine!!"
   STDERR.puts "exception = #{exception.inspect}"
   STDERR.puts exception.backtrace
 

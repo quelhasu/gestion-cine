@@ -47,7 +47,7 @@ module GestionCine
     end
 
     # Selectionne les films selon le mois si indique
-    def self.les_films( mois = nil )
+    def self.les_films( mois=nil )
       if mois.nil?
         @les_films
       else
@@ -79,18 +79,6 @@ module GestionCine
         end
         @les_films
           .select { |e| e.sortie.match(/\b[a-zA-Z]+\b/).to_s == le_mois}
-      end
-    end
-
-    def self.sort_films ( option = nil )
-      if option.nil?
-        @les_films .sort
-      elsif option == "annee"
-        @les_films .sort_by(&annee)
-      elsif option == "top"
-        @les_films .sort_by(&note)
-      elsif option == "duree"
-        @les_films .sort_by(&duree)
       end
     end
   end

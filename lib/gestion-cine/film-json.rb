@@ -9,10 +9,9 @@ module GestionCine
     def self.creer_film( ligne )
       imdbid = ligne["imdbid"]
       jours = ligne["jours"]
-      salles = lignes["salles"]
-      Film.new(imdbid,
-               jours.join,
-               salles)
+      salles = ligne["salles"]
+
+      Film.new(imdbid, salles , jours)
     end
 
     # Methode pour renvoyer un objet Cours au format JSON

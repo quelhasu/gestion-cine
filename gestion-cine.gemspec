@@ -11,8 +11,6 @@ spec = Gem::Specification.new do |s|
 ")
   s.require_paths << 'lib'
   s.has_rdoc = false
-  s.extra_rdoc_files = ['README.rdoc','gestion-cine.rdoc']
-  s.rdoc_options << '--title' << 'gestion-cine' << '--main' << 'README.rdoc' << '-ri'
   s.bindir = 'bin'
   s.executables << 'gestion-cine'
   s.add_development_dependency('rake')

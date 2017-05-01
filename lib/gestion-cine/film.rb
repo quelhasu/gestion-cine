@@ -4,16 +4,17 @@ module GestionCine
     attr_reader :imdbid, :jours, :salles, :titre, :annee, :note,
     :genre, :real, :synopsis, :sortie, :duree
 
-    def initialize( imdbid, salles = 0, *jours )
+    def initialize( imdbid, nbsalles = 0, jours )
       film = OMDB.id(imdbid)
       @imdbid = imdbid
       @jours = jours
-      @salles = salles
+      @salles = nbsalles
       @titre = film.title
       @annee = film.year
       @note = film.imdb_rating
       @genre = film.genre
       @real = film.director
+      @scenariste = film.writer
       @synopsis = film.plot
       @sortie = film.released
       @duree = film.runtime
@@ -38,14 +39,15 @@ module GestionCine
     #
 
     def to_s( le_format = nil )
+      sep_jours = FilmJson::SEPARATEUR_JOURS
       if le_format.nil?
-        sep_jours = FilmJson::SEPARATEUR_JOURS
-        sep_salles = FilmJson::SEPARATEUR_SALLES
+
+
         return format("\"%s\" (real. %s) - {%s} (%s)",
-        titre,
-        real,
-        jours.join(sep_jours),
-        salles)
+                        titre,
+                        real,
+                        jours.join(sep_jours),
+                        salles)
       end
 
       form = le_format
