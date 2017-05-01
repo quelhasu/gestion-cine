@@ -5,6 +5,11 @@ require 'minitest/mock'
 require 'open3'
 require 'gestion-cine'
 
+GC = GestionCine
+
+#
+# Extensions de la classe Object pour definir des methodes auxiliaires
+# de test.
 #
 class Object
   # Pour desactiver temporairement une suite de tests.
@@ -46,7 +51,6 @@ end
 # @yield [void]
 #
 def avec_fichier( nom_fichier, lignes = [], conserver = nil )
-  # On cree le fichier.
   File.open( nom_fichier, "w" ) do |fich|
     lignes.each do |ligne|
       fich.puts  ligne
@@ -74,9 +78,9 @@ end
 # @return [Array[Array<String>, Array<String>, Fixnum] Les lignes produites sur stdout, stderr et le code de statut
 #
 
-def ga( cmd )
+def gc( cmd )
   stdout = stderr = wt = nil
-  Open3.popen3( "bundle exec bin/ga #{cmd}" ) do |i, o, e, w|
+  Open3.popen3( "bundle exec bin/gestion-cine #{cmd}" ) do |i, o, e, w|
     i.close
     stdout = o.readlines.map!(&:chomp!)
     stderr = e.readlines.map!(&:chomp!)
