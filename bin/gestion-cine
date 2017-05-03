@@ -69,7 +69,7 @@ command :supprimer do |supprimer|
   end
 end
 
-desc 'Modifier un film deja present pour ajouter des jours ou une salle'
+desc 'Modifie un film deja present pour ajouter des jours ou un nombre de salles'
 arg_name '[films]...'
 command :modifier do |modifier|
   modifier.desc 'Jours a ajouter'
@@ -109,7 +109,7 @@ command :modifier do |modifier|
   end
 end
 
-desc 'Lister les films qui presents dans la base de donnees'
+desc 'Liste les films presents dans la base de donnees'
 command :lister do |lister|
   lister.desc 'Option a utiliser pendant le listing (annee, top, duree)'
   lister.flag :option, :arg_name => 'option'
@@ -155,7 +155,7 @@ command :init do |init|
 end
 
 
-desc 'Trouve les films qui matchent un motif'
+desc 'Trouve et affiche les films qui matchent avec un motif de l utilisateur'
 arg_name 'motif'
 command :trouver do |trouver|
   trouver.desc 'Format a utiliser pour l affichage'
@@ -177,23 +177,6 @@ command :trouver do |trouver|
     puts listing unless listing.empty?
 
     erreur "Arguments en trop" unless args.empty?
-  end
-end
-
-
-desc 'Describe delete here'
-arg_name 'Describe arguments to delete here'
-command :delete do |c|
-  c.action do |global_options,options,args|
-    puts "delete command ran"
-  end
-end
-
-desc 'Describe print here'
-arg_name 'Describe arguments to print here'
-command :print do |c|
-  c.action do |global_options,options,args|
-    puts "print comman d ran"
   end
 end
 
