@@ -5,9 +5,12 @@ require 'rake/testtask'
 
 task :default => [:test, :test_acceptation]
 
+task :unitaire => [:test]
+task :acceptation => [:test_acceptation]
+
 Rake::TestTask.new(:test_acceptation) do |t|
   t.libs << "test_acceptation"
-  t.test_files = FileList['test_acceptation/lister_test.rb']
+  t.test_files = FileList['test_acceptation/ajouter_test.rb']
 end
 
 Rake::TestTask.new(:wip) do |t|
