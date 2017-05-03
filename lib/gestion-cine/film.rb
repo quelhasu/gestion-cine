@@ -1,10 +1,20 @@
 module GestionCine
+
+  # Class permettant de creer un film
+  # Tous les champs sont immuables.
+  #
   class Film
     include Comparable
     attr_reader :imdbid, :jours, :salles, :titre, :annee, :note,
-    :genre, :real, :synopsis, :sortie, :duree
+                :genre, :real, :synopsis, :sortie, :duree
 
-    def initialize( imdbid, nbsalles = 0, jours )
+    # Initialiser un film a partir des parametres suivants.
+    #
+    # @param [String] imdbid - l imdbid du film a creer.
+    # @param [Array] jours - jours lesquels le film sera diffuse.
+    # @param [Fixnum] salles - nombre de salles dans lequel est diffuse le film.
+    #
+    def initialize( imdbid, nbsalles=0, jours=nil )
       film = OMDB.id(imdbid)
       @imdbid = imdbid
       @jours = jours
@@ -20,8 +30,8 @@ module GestionCine
       @duree = film.runtime
     end
 
-    #
     # Formate un cours selon les indications specifiees par le_format:
+    #
     #  -  %I:   imdbid
     #  -  %J:	  jours
     #  -  %T:	  titre
@@ -37,12 +47,9 @@ module GestionCine
     # Des indications de largeur, justification, etc. peuvent aussi etre
     # specifiees, par exemple, %-10T, %-.10T, etc.
     #
-
     def to_s( le_format = nil )
       sep_jours = FilmJson::SEPARATEUR_JOURS
       if le_format.nil?
-
-
         return format("\"%s\" (real. %s) - {%s} (%s)",
                         titre,
                         real,
@@ -94,13 +101,32 @@ module GestionCine
           form = form.gsub('"','\"')
         end
       end
-
       return form % res
       fail "Cas non traite: to_s( #{le_format}, #{separateur_prealables} )"
     end
 
+    # Ordonner les films selons leur titre
+    #
+    # @param [Film] autre - Objet de la classe film.
+    #
     def <=>( autre )
       titre <=> autre.titre
+    end
+
+    # Permet de modifier les jours de diffusions d un objet Film.
+    #
+    # @param [Array] array - Les jours a ajouter aux films.
+    #
+    def jours=( array )
+      @jours = array
+    end
+
+    # Permet de modifier le nombre salles de diffusions d un objet Film.
+    #
+    # @param [Fixnum] nb - Le nombre de salles a ajouter aux films.
+    #
+    def salles=( nb )
+      @salles = nb
     end
 
   end
