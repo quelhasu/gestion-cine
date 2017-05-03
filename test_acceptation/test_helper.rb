@@ -7,7 +7,6 @@ require 'gestion-cine'
 
 GC = GestionCine
 
-#
 # Extensions de la classe Object pour definir des methodes auxiliaires
 # de test.
 #
@@ -53,7 +52,7 @@ end
 def avec_fichier( nom_fichier, lignes = [], conserver = nil )
   File.open( nom_fichier, "w" ) do |fich|
     lignes.each do |ligne|
-      fich.puts  ligne
+      fich.puts ligne
     end
   end
 
@@ -70,11 +69,11 @@ def avec_fichier( nom_fichier, lignes = [], conserver = nil )
 end
 
 #
-# Execute le script bin/ga avec commande, options et arguments
+# Execute le script bin/gc avec commande, options et arguments
 # indiques puis retourne les lignes emises sur stdout et stderr suite
 # a l'execution de cette commande, ainsi que le code de statut.
 #
-# @param [String] cmd La commande a executer avec ses options et arguments  (sans 'bin/ga')
+# @param [String] cmd La commande a executer avec ses options et arguments  (sans 'bin/gc')
 # @return [Array[Array<String>, Array<String>, Fixnum] Les lignes produites sur stdout, stderr et le code de statut
 #
 
