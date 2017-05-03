@@ -48,7 +48,7 @@ describe GestionCine do
       end
     end
 
-    it_ "liste les films avec l option top indique" do
+    it_ "liste les films avec l option note indique" do
       lignes = IO.readlines("#{REPERTOIRE_TESTS}/db6.json")
       attendu = '"Star Wars: The Force Awakens" (real. J.J. Abrams) - {Lundi-Jeudi-Vendredi} (3)',
                 '"Schindler\'s List" (real. Steven Spielberg) - {Mardi} (1)',
@@ -60,7 +60,7 @@ describe GestionCine do
 
       avec_fichier '.db.json', lignes do
         genere_sortie( attendu ) do
-          gc( 'lister --option=top ' )
+          gc( 'lister --option=note ' )
         end
       end
     end
