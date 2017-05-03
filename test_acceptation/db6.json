@@ -1,50 +1,52 @@
 [
   {
     "imdbid": "tt2488496",
-    "salles": 3,
     "jours": [
       "Lundi",
       "Jeudi",
       "Vendredi"
-    ]
+    ],
+    "salles": 3
   },
   {
     "imdbid": "tt0068646",
-    "salles": 4,
     "jours": [
       "Lundi",
       "Mardi",
       "Mercredi",
       "Dimanche"
-    ]
+    ],
+    "salles": 4
   },
   {
     "imdbid": "tt0468569",
-    "salles": 0,
     "jours": [
       "Mercredi",
       "Samedi",
       "Dimanche"
-    ]
+    ],
+    "salles": 0
   },
   {
     "imdbid": "tt0108052",
-    "salles": 1,
     "jours": [
       "Mardi"
-    ]
+    ],
+    "salles": 1
   },
   {
     "imdbid": "tt2527336",
-    "salles": null,
-    "jours": []
+    "jours": [
+
+    ],
+    "salles": null
   },
   {
     "imdbid": "tt0167260",
-    "salles": 10,
     "jours": [
       "Lundi",
       "Dimanche"
-    ]
+    ],
+    "salles": 10
   }
 ]
