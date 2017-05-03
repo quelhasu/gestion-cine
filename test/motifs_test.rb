@@ -52,7 +52,7 @@ module GestionCine
 
     describe Motifs::FILM do
       it_ "matche un film complet" do
-        "tt2488496 1::12::9 Lundi-Mardi-Jeudi".must_match Motifs::FILM
+        "tt2488496 3 Lundi-Mardi-Jeudi".must_match Motifs::FILM
       end
 
     end
