@@ -34,7 +34,7 @@ desc 'Ajoute un film dans la banque de films'
 arg_name '[films]...'
 command :ajouter do |ajouter|
   ajouter.action do |_global_options,_options,args|
-    erreur_nb_arguments args unless args.size == 0 || args.size >= 3
+    erreur_nb_arguments args unless args.size == 0 || args.size >= 2
 
     nouveaux_films(args).each do |imdbid, salles, *jours|
       erreur "ID incorrect: #{imdbid}" unless GestionCine::Motifs::ID =~ imdbid
@@ -201,10 +201,20 @@ end
 #                 Auxiliaires                     #
 ###################################################
 
-def film_lu( ligne )
+def id_lu( ligne )
   m = GestionCine::Motifs::ID.match ligne.strip
 
   erreur "Format incorrect: '#{ligne}' =~ '#{GestionCine::Motifs::ID.inspect}'." unless m
+  erreur "Nombre incorrect d'arguments: '#{ligne}'" unless m.post_match.empty?
+
+  supprimer_guillemets m[0]
+
+end
+
+def film_lu( ligne )
+  m = GestionCine::Motifs::FILM.match ligne.strip
+
+  erreur "Format incorrect: '#{ligne}' =~ '#{GestionCine::Motifs::FILM.inspect}'." unless m
   erreur "Nombre incorrect d'arguments: '#{ligne}'" unless m.post_match.empty?
 
   imdbid, salles, jours = m.captures
@@ -227,7 +237,7 @@ def les_films_a_supp( args )
 
   STDIN.readlines
     .reject { |ligne| ligne.strip.empty? }
-    .flat_map { |ligne| ligne.split.map { |sigle| film_lu( sigle.chomp ) } }
+    .flat_map { |ligne| ligne.split.map { |sigle| id_lu( sigle.chomp ) } }
 end
 
 def supprimer_guillemets( a )
