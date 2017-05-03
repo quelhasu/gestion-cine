@@ -13,7 +13,6 @@ end
 include GLI::App
 
 DEPOT_DEFAUT = '.db.json'
-#GestionCine = GestionCine
 
 program_desc 'Application pour la gestion d un cinema (banque de films)'
 
@@ -30,6 +29,85 @@ arg_name 'nom_de_fichier'
 ####################################
 #           Commanades             #
 ####################################
+
+desc 'Ajoute un film dans la banque de films'
+arg_name '[films]...'
+command :ajouter do |ajouter|
+  ajouter.action do |_global_options,_options,args|
+    erreur_nb_arguments args unless args.size == 0 || args.size >= 3
+
+    nouveaux_films(args).each do |imdbid, salles, *jours|
+      erreur "ID incorrect: #{imdbid}" unless GestionCine::Motifs::ID =~ imdbid
+
+      exist = GestionCine::BanqueDeFilms.le_film(imdbid)
+      erreur "Un film avec le meme imdbid existe deja." if exist
+
+      unless jours[0].nil?
+        jours.all? do |j|
+          erreur "Jour incorrect: #{jours}" unless GestionCine::Motifs::JOUR =~ j
+          true
+        end
+      end
+
+      GestionCine::BanqueDeFilms.ajouter( imdbid, salles, jours )
+    end
+  end
+end
+
+desc 'Supprime un film de la banque de films'
+arg_name '[imdbid]...'
+command :supprimer do |supprimer|
+  supprimer.action do |_global_options,_options,args|
+    erreur "Arguments en trop" if args.size > 1
+
+    les_films_a_supp(args).each do |imdbid|
+      le_film = GestionCine::BanqueDeFilms.le_film( imdbid )
+      erreur "Aucun film avec l'imdbid '#{imdbid}'." unless le_film
+
+      GestionCine::BanqueDeFilms.supprimer le_film
+    end
+  end
+end
+
+desc 'Modifier un film deja present pour ajouter des jours ou une salle'
+arg_name '[films]...'
+command :modifier do |modifier|
+  modifier.desc 'Jours a ajouter'
+  modifier.flag :jours, :arg_name => 'les_jours'
+
+  modifier.desc 'Salles a ajouter'
+  modifier.flag :salles, :arg_name => 'les_salles'
+
+  modifier.action do |_global_options,options,args|
+    jours = options[:jours]
+    salles = options[:salles]
+    erreur "Aucune option indique, rien a modifier!" if jours.nil? && salles.nil?
+    erreur_nb_arguments args unless args.size == 0 || args.size >= 1
+
+    imdbid = args.shift
+    erreur_nb_arguments "modifier" unless imdbid
+
+    erreur "ID incorrect: #{imdbid}" unless GestionCine::Motifs::ID =~ imdbid
+
+    film = GestionCine::BanqueDeFilms.le_film(imdbid)
+    erreur "Aucun film: #{imdbid}" unless film
+
+    unless jours.nil?
+      jours = jours.split(" ")
+      jours.all? do |j|
+        erreur "Jour incorrect: #{jours}" unless GestionCine::Motifs::JOUR =~ j
+        erreur "Jour deja present #{j}" if GestionCine::BanqueDeFilms.jour_present(j, imdbid)
+        true
+      end
+    end
+
+    unless salles.nil?
+      erreur "Salles incorrect: #{salles}" unless GestionCine::Motifs::SALLES =~ salles
+    end
+
+    GestionCine::BanqueDeFilms.modifier( imdbid, salles, jours )
+  end
+end
 
 desc 'Lister les films qui presents dans la base de donnees'
 command :lister do |lister|
@@ -50,23 +128,21 @@ command :lister do |lister|
     films = GestionCine::BanqueDeFilms.les_films( mois )
     if option.nil?
       films = films.sort
-    elsif option == "annee"
-      films = films.sort_by(&:annee).reverse!
-    elsif option == "top"
-      films = films.sort_by(&:note)
-    elsif option == "duree"
-      films = films.sort_by(&:duree)
+    else
+      films = films.sort_by(&option.to_sym)
     end
 
+    films = films.reverse! if option == "annee"
+
     listing = films .map { |e| e.to_s( le_format ) << "\n" }
-                  .join
+    .join
 
     puts listing unless listing.empty?
   end
 end
 
 
-desc "Cree une nouvelle base de donnees pour gerer des cours (dans './#{DEPOT_DEFAUT}' si --depot n'est pas specifie)"
+desc "Cree une nouvelle base de donnees pour gerer des films"
 skips_pre
 skips_post
 command :init do |init|
@@ -79,6 +155,30 @@ command :init do |init|
 end
 
 
+desc 'Trouve les films qui matchent un motif'
+arg_name 'motif'
+command :trouver do |trouver|
+  trouver.desc 'Format a utiliser pour l affichage'
+  trouver.flag :format
+
+  trouver.action do |_global_options,options,args|
+    format = options[:format]
+
+    motif = args.shift
+    erreur_nb_arguments "trouver" unless motif
+
+    selection = GestionCine::BanqueDeFilms.les_films_motif( motif )
+
+
+    listing = selection .sort
+                        .map { |f| f.to_s(format) + "\n" }
+                        .join
+
+    puts listing unless listing.empty?
+
+    erreur "Arguments en trop" unless args.empty?
+  end
+end
 
 
 desc 'Describe delete here'
@@ -98,8 +198,45 @@ command :print do |c|
 end
 
 ###################################################
-# Pre/post hook des commandes et lancement du programme
+#                 Auxiliaires                     #
 ###################################################
+
+def film_lu( ligne )
+  m = GestionCine::Motifs::ID.match ligne.strip
+
+  erreur "Format incorrect: '#{ligne}' =~ '#{GestionCine::Motifs::ID.inspect}'." unless m
+  erreur "Nombre incorrect d'arguments: '#{ligne}'" unless m.post_match.empty?
+
+  imdbid, salles, jours = m.captures
+
+  supprimer_guillemets m[0]
+
+  [imdbid, salles, jours]
+end
+
+def nouveaux_films( args )
+  return [args] unless args.empty?
+
+  STDIN.readlines
+  .reject { |ligne| ligne.strip.empty? }
+  .map { |ligne| film_lu( ligne.chomp ) }
+end
+
+def les_films_a_supp( args )
+  return [args.shift] unless args.empty?
+
+  STDIN.readlines
+    .reject { |ligne| ligne.strip.empty? }
+    .flat_map { |ligne| ligne.split.map { |sigle| film_lu( sigle.chomp ) } }
+end
+
+def supprimer_guillemets( a )
+  /['"]/ =~ a[0] ? a[1..-2] : a
+end
+
+#########################################################
+# Pre/post hook des commandes et lancement du programme #
+#########################################################
 
 pre do |global,command,options,args|
   GestionCine::BanqueDeFilms.charger( global[:depot] )
@@ -111,7 +248,7 @@ post do |global,command,options,args|
 end
 
 ###################################################
-# Methodes pour traitement des erreurs.
+# Methodes pour traitement des erreurs.           #
 ###################################################
 
 def erreur( msg )
