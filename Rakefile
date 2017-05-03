@@ -10,7 +10,7 @@ task :acceptation => [:test_acceptation]
 
 Rake::TestTask.new(:test_acceptation) do |t|
   t.libs << "test_acceptation"
-  t.test_files = FileList['test_acceptation/ajouter_test.rb']
+  t.test_files = FileList['test_acceptation/*_test.rb']
 end
 
 Rake::TestTask.new(:wip) do |t|
